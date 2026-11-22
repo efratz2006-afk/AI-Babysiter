@@ -21,6 +21,20 @@ class EvaluationResult:
     approach: str
 
 
+# Hardcoded stub mapping based on design/scenarios.md
+_STUB_RESPONSES = {
+    "i would take a deep breath, pick the baby up, and sing a quiet song until he calms down.": EvaluationResult(
+        patience_level="High", approach="Comforting"
+    ),
+    "i'd put him in his crib and leave the room for 5 minutes so he learns to self-soothe.": EvaluationResult(
+        patience_level="Low", approach="Strict / Independent"
+    ),
+    "i will try to distract him with a noisy toy or give him a screen to watch.": EvaluationResult(
+        patience_level="Medium", approach="Distraction"
+    ),
+}
+
+
 class PersonalityEvaluator:
     """Evaluates candidate responses to childcare crisis scenarios."""
 
@@ -33,16 +47,30 @@ class PersonalityEvaluator:
         Returns:
             EvaluationResult containing the patience level and approach.
         """
-        pass
+        return evaluate_response(response)
 
 
 def evaluate_response(response: str) -> EvaluationResult:
-    """Evaluate a babysitter's text response to a crisis scenario.
+    """Evaluate a babysitter's text response to a crisis scenario using a stub.
 
     Args:
         response: The babysitter's text response to the crisis scenario.
 
     Returns:
-        EvaluationResult containing the patience level and approach.
+        EvaluationResult containing the hardcoded or mapped patience level and approach.
     """
-    pass
+    cleaned = response.strip().lower()
+
+    if cleaned in _STUB_RESPONSES:
+        return _STUB_RESPONSES[cleaned]
+
+    # Keyword fallback for partial matches from the scenario examples
+    if any(k in cleaned for k in ("deep breath", "sing", "quiet song", "calms down")):
+        return EvaluationResult(patience_level="High", approach="Comforting")
+    if any(k in cleaned for k in ("crib", "leave the room", "self-soothe")):
+        return EvaluationResult(patience_level="Low", approach="Strict / Independent")
+    if any(k in cleaned for k in ("distract", "toy", "screen")):
+        return EvaluationResult(patience_level="Medium", approach="Distraction")
+
+    # Default hardcoded return value
+    return EvaluationResult(patience_level="High", approach="Comforting")
